@@ -39,3 +39,12 @@ testcases/*
 experiments/*
 __pycache__
 .idea
+test_env
+.venv
+
+# Pip/setuptools artifacts
+dist/
+*.egg-info/
+_skbuild/
+.eggs/
+*.whl
