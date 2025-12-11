@@ -142,33 +142,6 @@ ELSE()
    INCLUDE_DIRECTORIES(${Python3_INCLUDE_DIRS})
 ENDIF()
 
-#NumPY
-#if (Python3_EXECUTABLE)
-#    # Find out the include path
-#    execute_process(
-#        COMMAND "${Python3_EXECUTABLE}" -c
-#        "from __future__ import print_function\ntry: import numpy; print(numpy.get_include(), end='')\nexcept:pass\n"
-#        OUTPUT_VARIABLE __numpy_path)
-#    # And the version
-#    execute_process(
-#        COMMAND "${Python3_EXECUTABLE}" -c
-#        "from __future__ import print_function\ntry: import numpy; print(numpy.__version__, end='')\nexcept:pass\n"
-#        OUTPUT_VARIABLE __numpy_version)
-#elseif(__numpy_out)
-#    message(STATUS "Python executable not found.")
-#endif(Python3_EXECUTABLE)
-#
-#find_path(PYTHON_NUMPY_INCLUDE_DIR numpy/arrayobject.h
-#    HINTS "${__numpy_path}" "${Python3_INCLUDE_DIRS}" NO_DEFAULT_PATH)
-#if(PYTHON_NUMPY_INCLUDE_DIR)
-#    set(PYTHON_NUMPY_FOUND 1 CACHE INTERNAL "Python numpy found")
-#    include_directories(${PYTHON_NUMPY_INCLUDE_DIR} SYSTEM)
-#endif(PYTHON_NUMPY_INCLUDE_DIR)
-
-#include(FindPackageHandleStandardArgs)
-#find_package_handle_standard_args(NumPy REQUIRED_VARS PYTHON_NUMPY_INCLUDE_DIR
-#    VERSION_VAR __numpy_version)
-
 add_library(glogp SHARED ${main_SRC})
 set_target_properties(glogp PROPERTIES OUTPUT_NAME "glog" PREFIX "" SUFFIX ".so")
 set_target_properties(glogp PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}")
