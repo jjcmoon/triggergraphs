@@ -9,6 +9,7 @@ void bind_program(nb::module_ &m);
 void bind_wizard(nb::module_ &m);
 void bind_reasoner(nb::module_ &m);
 void bind_tg(nb::module_ &m);
+void bind_querier(nb::module_ &m);
 
 NB_MODULE(glog, m) {
     m.doc() = "Python bindings for GLog";
@@ -27,4 +28,5 @@ NB_MODULE(glog, m) {
     bind_wizard(m);
     bind_reasoner(m);
     bind_tg(m);
+    bind_querier(m);
 }
