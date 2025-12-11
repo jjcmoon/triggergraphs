@@ -20,11 +20,10 @@ def test_basic():
     answers = set()
     for node in nodes:
         facts = querier.get_facts_in_TG_node(int(node['id']))
-        facts = json.loads(facts)
-        for fact in facts:
-            print(fact)
-            answers.add(tuple(fact))
+        print("facts", facts)
+        answers.update(map(tuple, json.loads(facts)))
     
     expected = {("belgium", "france"), ("france", "germany"), ("belgium", "germany")}
     expected = expected | {(x, y) for (y, x) in expected}
     assert answers == expected
+    assert False
