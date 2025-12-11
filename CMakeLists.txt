@@ -1,17 +1,17 @@
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.20...4.2)
 
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
-if (NOT "$ENV{CC}" STREQUAL "")
-    set(CMAKE_C_COMPILER "$ENV{CC}")
+if (NOT DEFINED ENV{CC})
+    set(CMAKE_C_COMPILER "gcc")
 endif()
-if (NOT "$ENV{CXX}" STREQUAL "")
-    set(CMAKE_CXX_COMPILER "$ENV{CXX}")
+if (NOT DEFINED ENV{CXX})
+    set(CMAKE_CXX_COMPILER "g++")
 endif()
 
-project (triggergraphs)
+project(triggergraphs LANGUAGES C CXX)
+
 include(ExternalProject)
-set(CMAKE_MACOSX_RPATH 1)
+# Modern CMake handles RPATH correctly on macOS
+set(CMAKE_MACOSX_RPATH ON)
 
 # nanobind
 find_package(Python COMPONENTS Interpreter Development REQUIRED)

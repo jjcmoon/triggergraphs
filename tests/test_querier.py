@@ -26,4 +26,3 @@ def test_basic():
     expected = {("belgium", "france"), ("france", "germany"), ("belgium", "germany")}
     expected = expected | {(x, y) for (y, x) in expected}
     assert answers == expected
-    assert False
