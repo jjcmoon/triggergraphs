@@ -1,6 +1,6 @@
 # Trigger Graphs Datalog Engine
 
-Python bindings for the [GLog](github.com/karmaresearch/glog) Datalog engine.
+Python bindings for the [GLog](https://github.com/karmaresearch/glog) Datalog engine.
 
 ### Installation
  
