@@ -19,7 +19,7 @@
  * under the License.
  **/
 
-#include <glog-python/tupleset.h>
+#include <triggergraphs/tupleset.h>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/shared_ptr.h>

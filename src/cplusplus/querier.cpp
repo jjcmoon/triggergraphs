@@ -19,11 +19,11 @@
  * under the License.
  **/
 
-#include <glog-python/querier.h>
-#include <glog-python/tg.h>
-#include <glog-python/reasoner.h>
-#include <glog-python/program.h>
-#include <glog-python/tupleset.h>
+#include <triggergraphs/querier.h>
+#include <triggergraphs/tg.h>
+#include <triggergraphs/reasoner.h>
+#include <triggergraphs/program.h>
+#include <triggergraphs/tupleset.h>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>

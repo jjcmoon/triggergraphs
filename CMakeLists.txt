@@ -9,7 +9,7 @@ if (NOT "$ENV{CXX}" STREQUAL "")
     set(CMAKE_CXX_COMPILER "$ENV{CXX}")
 endif()
 
-project (glog-python)
+project (triggergraphs)
 include(ExternalProject)
 set(CMAKE_MACOSX_RPATH 1)
 

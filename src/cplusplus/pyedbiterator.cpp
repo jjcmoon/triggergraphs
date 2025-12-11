@@ -1,4 +1,4 @@
-#include <glog-python/pyedbiterator.h>
+#include <triggergraphs/pyedbiterator.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/operators.h> 
 

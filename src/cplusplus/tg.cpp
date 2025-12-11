@@ -19,8 +19,8 @@
  * under the License.
  **/
 
-#include <glog-python/tg.h>
-#include <glog-python/reasoner.h>
+#include <triggergraphs/tg.h>
+#include <triggergraphs/reasoner.h>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>

@@ -6,7 +6,7 @@
 #include <memory>
 
 #include <vlog/edb.h>
-#include <glog-python/pyedbtable.h>
+#include <triggergraphs/pyedbtable.h>
 #include <kognac/utils.h>
 
 namespace nanobind {

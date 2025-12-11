@@ -1,5 +1,5 @@
-#include <glog-python/pyedbtable.h>
-#include <glog-python/pyedbiterator.h>
+#include <triggergraphs/pyedbtable.h>
+#include <triggergraphs/pyedbiterator.h>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>

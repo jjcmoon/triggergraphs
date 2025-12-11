@@ -19,8 +19,8 @@
  * under the License.
  **/
 
-#include <glog-python/program.h>
-#include <glog-python/edblayer.h>
+#include <triggergraphs/program.h>
+#include <triggergraphs/edblayer.h>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>

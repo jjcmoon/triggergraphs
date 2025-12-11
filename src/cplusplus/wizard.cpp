@@ -19,8 +19,8 @@
  * under the License.
  **/
 
-#include <glog-python/wizard.h>
-#include <glog-python/program.h>
+#include <triggergraphs/wizard.h>
+#include <triggergraphs/program.h>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
