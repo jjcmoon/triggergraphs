@@ -37,6 +37,13 @@ ProgramWrapper::ProgramWrapper(EDBLayerWrapper& edb_wrapper) {
     program = std::make_shared<Program>(edb);
 }
 
+ProgramWrapper::ProgramWrapper(const ProgramWrapper& other) {
+    edb = other.edb;
+    edb_obj = other.edb_obj;
+    // Note: program is intentionally not copied here, it will be set by caller
+    program = nullptr;
+}
+
 void ProgramWrapper::set_edb_object(nb::object obj) {
     edb_obj = obj;
 }

@@ -22,6 +22,7 @@ public:
     std::shared_ptr<Program> program;
 
     ProgramWrapper(EDBLayerWrapper& edb_wrapper);
+    ProgramWrapper(const ProgramWrapper& other);  // Copy constructor
 
     void set_edb_object(nb::object obj);
     void load_from_file(const std::string& path);
