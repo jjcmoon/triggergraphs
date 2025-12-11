@@ -26,6 +26,8 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/shared_ptr.h>
 
+#include <vlog/wizard.h>
+
 #include <kognac/utils.h>
 #include <kognac/logs.h>
 
@@ -86,6 +88,20 @@ Program* ProgramWrapper::get_program() {
     return program.get();
 }
 
+nb::tuple ProgramWrapper::apply_magic_transform(const std::string& query) {
+    Dictionary dv;
+    Wizard w;
+    std::pair<PredId_t, PredId_t> ioPredIDs;
+    auto lQuery = program->parseLiteral(query, dv);
+    auto adornedProgram = w.getAdornedProgram(lQuery, *program.get());
+    auto newProgram = w.doMagic(lQuery, adornedProgram, ioPredIDs);
+    auto newP = new ProgramWrapper(*this);
+    newP->program = newProgram;
+    // returns (new_program, input_pred_id, output_pred_id)
+    return nb::make_tuple(newP, ioPredIDs.first, ioPredIDs.second);
+}
+
+
 void bind_program(nb::module_ &m) {
     nb::class_<ProgramWrapper>(m, "Program", "Program")
         .def(nb::init<EDBLayerWrapper&>(),
@@ -104,5 +120,8 @@ void bind_program(nb::module_ &m) {
              "Add a rule")
         .def("get_predicate_name", &ProgramWrapper::get_predicate_name,
              nb::arg("predId"),
-             "Get name predicate");
+             "Get name predicate")
+        .def("apply_magic_transform", &ProgramWrapper::apply_magic_transform,
+             nb::arg("query"),
+             "Rewrite a program with magic sets. Returns (new_program, input_pred_id, output_pred_id)");
 }

@@ -31,6 +31,8 @@ public:
     size_t add_rule(const std::string& rule_str);
     std::string get_predicate_name(size_t predId);
 
+    nb::tuple apply_magic_transform(const std::string& query);
+
     // For internal use by other types
     EDBLayer* get_edb();
     Program* get_program();

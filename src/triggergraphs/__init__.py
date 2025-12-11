@@ -2,4 +2,4 @@
 
 from .glog import *
 
-__all__ = ['EDBLayer', 'Program', 'Reasoner', 'TG', 'Querier', 'TupleSet', 'Wizard', 'set_logging_level']
+__all__ = ['EDBLayer', 'Program', 'Reasoner', 'TG', 'Querier', 'TupleSet', 'set_logging_level']
