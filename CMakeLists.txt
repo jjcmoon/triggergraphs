@@ -13,6 +13,10 @@ project (glog-python)
 include(ExternalProject)
 set(CMAKE_MACOSX_RPATH 1)
 
+# nanobind
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+find_package(nanobind CONFIG REQUIRED)
+
 #Add homebrew include and libs
 EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE exitstatus OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 IF (${exitstatus} EQUAL 0)
@@ -62,19 +66,32 @@ IF(GLOG_LIB)
     LINK_DIRECTORIES("${GLOG_LIB}/")
 
 ELSE()
+    set(GLOG_LIB ${CMAKE_BINARY_DIR}/glog)
+    set(KOGNAC_LIB ${CMAKE_BINARY_DIR}/glog/trident/kognac)
+    set(TRIDENT_LIB ${CMAKE_BINARY_DIR}/glog/trident)
+
     ExternalProject_Add(git-glog
-        DOWNLOAD_COMMAND git clone https://github.com/karmaresearch/glog.git
-        DOWNLOAD_DIR .
-        SOURCE_DIR glog
+        GIT_REPOSITORY https://github.com/karmaresearch/glog.git
+        GIT_TAG master
+        GIT_SHALLOW TRUE
+        SOURCE_DIR ${CMAKE_BINARY_DIR}/glog
         BUILD_IN_SOURCE 1
+        CMAKE_GENERATOR "Unix Makefiles"
         CMAKE_ARGS "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        BUILD_COMMAND ${CMAKE_COMMAND} -E remove_directory trident && ${CMAKE_COMMAND} -E remove_directory rulemaker && ${CMAKE_COMMAND} --build .
         INSTALL_COMMAND ""
+        UPDATE_COMMAND ""
+        BUILD_BYPRODUCTS
+            ${GLOG_LIB}/${CMAKE_SHARED_LIBRARY_PREFIX}vlog-core${CMAKE_SHARED_LIBRARY_SUFFIX}
+            ${TRIDENT_LIB}/${CMAKE_SHARED_LIBRARY_PREFIX}trident-core${CMAKE_SHARED_LIBRARY_SUFFIX}
+            ${TRIDENT_LIB}/${CMAKE_SHARED_LIBRARY_PREFIX}trident-sparql${CMAKE_SHARED_LIBRARY_SUFFIX}
+            ${KOGNAC_LIB}/${CMAKE_SHARED_LIBRARY_PREFIX}kognac-core${CMAKE_SHARED_LIBRARY_SUFFIX}
+            ${KOGNAC_LIB}/external/lz4/lib/${CMAKE_STATIC_LIBRARY_PREFIX}lz4${CMAKE_STATIC_LIBRARY_SUFFIX}
         )
     ExternalProject_Get_Property(git-glog SOURCE_DIR)
     include_directories(${SOURCE_DIR}/include)
 
     # KOGNAC
-    set(KOGNAC_LIB ${CMAKE_BINARY_DIR}/glog/trident/kognac)
     add_library(kognac-core SHARED IMPORTED)
     add_dependencies(kognac-core git-glog)
     include_directories(${SOURCE_DIR}/trident/kognac/include)
@@ -82,7 +99,6 @@ ELSE()
     set_property(TARGET kognac-core PROPERTY IMPORTED_LOCATION ${KOGNAC_LIB}/${CMAKE_SHARED_LIBRARY_PREFIX}kognac-core${CMAKE_SHARED_LIBRARY_SUFFIX})
 
     # TRIDENT
-    set(TRIDENT_LIB ${CMAKE_BINARY_DIR}/glog/trident)
     add_library(trident-core SHARED IMPORTED)
     add_dependencies(trident-core kognac-core)
     include_directories(${SOURCE_DIR}/trident/include)
@@ -96,7 +112,6 @@ ELSE()
     set_property(TARGET trident-sparql PROPERTY IMPORTED_LOCATION "${TRIDENT_LIB}/${CMAKE_SHARED_LIBRARY_PREFIX}trident-sparql${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
     # GLOG CORE
-    set(GLOG_LIB ${CMAKE_BINARY_DIR}/glog)
     add_library(glog-core SHARED IMPORTED)
     add_dependencies(glog-core trident-sparql)
     set_property(TARGET glog-core PROPERTY IMPORTED_LOCATION "${GLOG_LIB}/${CMAKE_SHARED_LIBRARY_PREFIX}vlog-core${CMAKE_SHARED_LIBRARY_SUFFIX}")
@@ -142,7 +157,36 @@ ELSE()
    INCLUDE_DIRECTORIES(${Python3_INCLUDE_DIRS})
 ENDIF()
 
-add_library(glogp SHARED ${main_SRC})
-set_target_properties(glogp PROPERTIES OUTPUT_NAME "glog" PREFIX "" SUFFIX ".so")
-set_target_properties(glogp PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}")
-TARGET_LINK_LIBRARIES(glogp glog-core trident-core kognac-core ${Python3_LIBRARIES})
+nanobind_add_module(glog MODULE ${main_SRC})
+set_target_properties(glog PROPERTIES CXX_STANDARD 11)
+
+target_link_libraries(glog
+    PRIVATE
+        glog-core
+        trident-core
+        kognac-core
+        trident-sparql
+        lz4
+        ZLIB::ZLIB
+)
+
+IF(NOT GLOG_LIB)
+    add_dependencies(glog git-glog)
+
+    install(FILES
+        ${GLOG_LIB}/libvlog-core.so
+        ${TRIDENT_LIB}/libtrident-core.so
+        ${TRIDENT_LIB}/libtrident-sparql.so
+        ${KOGNAC_LIB}/libkognac-core.so
+        DESTINATION triggergraphs)
+
+    set_target_properties(glog PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_WITH_INSTALL_RPATH TRUE)
+ELSE()
+    set_target_properties(glog PROPERTIES
+        INSTALL_RPATH "${GLOG_LIB}:${TRIDENT_LIB}:${KOGNAC_LIB}"
+        BUILD_WITH_INSTALL_RPATH TRUE)
+ENDIF()
+
+install(TARGETS glog LIBRARY DESTINATION triggergraphs)
