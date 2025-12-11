@@ -19,7 +19,7 @@ NB_MODULE(glog, m) {
        "Set the logging level. From 0 (trace) to 5 (error).");
 
     // Set default logging level to INFO
-    Logger::setMinLevel(INFOL);
+    Logger::setMinLevel(WARNL);
 
     bind_tupleset(m);
     bind_edblayer(m);
