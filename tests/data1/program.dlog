@@ -1,0 +1,4 @@
+neigh(X, Y) :- neighborOf(X, Y)
+neigh(X, Y) :- neighborOf(Y, X)
+locIn(X, Y) :- locatedIn(X, Y)
+locIn(X, Y) :- locatedIn(X, Z), locIn(Z, Y)
