@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Jacopo Urbani
+ * Copyright 2025 Jacopo Urbani, Jaron Maene
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,89 +19,32 @@
  * under the License.
  **/
 
+#include <glog-python/tupleset.h>
 
-#include <Python.h>
-#include <iostream>
-#include <vector>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/vector.h>
 
-#include <glog-python/glog.h>
+namespace nb = nanobind;
 
-/*** Methods ***/
-static PyObject * tupleset_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-static int tupleset_init(glog_TupleSet *self, PyObject *args, PyObject *kwds);
-static void tupleset_dealloc(glog_TupleSet* self);
-static PyObject* tupleset_get_n_facts(PyObject* self, PyObject *args);
 
-static PyMethodDef TupleSet_methods[] = {
-    {"get_n_facts", tupleset_get_n_facts, METH_VARARGS, "Get number of facts." },
-    {NULL, NULL, 0, NULL}        /* Sentinel */
-};
+TupleSet::TupleSet()
+    : nodeId(0),
+      ruleIdx(0),
+      step(0),
+      predId(0) {}
 
-PyTypeObject glog_TupleSetType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-        "glog.TupleSet",             /* tp_name */
-    sizeof(glog_TupleSet),             /* tp_basicsize */
-    0,                         /* tp_itemsize */
-    (destructor) tupleset_dealloc, /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_reserved */
-    0,                         /* tp_repr */
-    0,                         /* tp_as_number */
-    0,                         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash  */
-    0,                         /* tp_call */
-    0,                         /* tp_str */
-    0,                         /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "TupleSet",           /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    TupleSet_methods,             /* tp_methods */
-    0,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)tupleset_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    tupleset_new,                 /* tp_new */
-};
-
-static PyObject * tupleset_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
-    glog_TupleSet *self;
-    self = (glog_TupleSet*)type->tp_alloc(type, 0);
-    self->data = NULL;
-    self->nodeId = 0;
-    self->ruleIdx = 0;
-    self->step = 0;
-    self->predId = 0;
-    return (PyObject *)self;
-}
-
-static int tupleset_init(glog_TupleSet *self, PyObject *args, PyObject *kwds) {
+size_t TupleSet::get_n_facts() const {
+    if (data) {
+        return data->getNRows();
+    }
     return 0;
 }
 
-static void tupleset_dealloc(glog_TupleSet* self) {
-    glog_TupleSet *s = self;
-    s->data = NULL;
-    Py_TYPE(self)->tp_free((PyObject*)self);
-}
-
-static PyObject* tupleset_get_n_facts(PyObject* self, PyObject *args) {
-    auto s = ((glog_TupleSet*)self);
-    auto n = s->data->getNRows();
-    return PyLong_FromLong(n);
+void bind_tupleset(nb::module_ &m) {
+    nb::class_<TupleSet>(m, "TupleSet", "TupleSet")
+        .def(nb::init<>())
+        .def("get_n_facts",
+             &TupleSet::get_n_facts,
+             "Get number of facts");
 }
