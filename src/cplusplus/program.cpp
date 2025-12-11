@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Jacopo Urbani
+ * Copyright 2021 Jacopo Urbani, Jaron Maene
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,166 +19,83 @@
  * under the License.
  **/
 
+#include <glog-python/program.h>
+#include <glog-python/edblayer.h>
 
-#include <Python.h>
-#include <iostream>
-#include <vector>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/shared_ptr.h>
 
-#include <glog-python/glog.h>
 #include <kognac/utils.h>
+#include <kognac/logs.h>
 
-/*** Methods ***/
-static PyObject * program_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-static int program_init(glog_Program *self, PyObject *args, PyObject *kwds);
-static void program_dealloc(glog_Program* self);
-static PyObject* program_load_from_file(PyObject* self, PyObject *args);
-static PyObject* program_get_n_rules(PyObject* self, PyObject *args);
-static PyObject* program_get_rule(PyObject* self, PyObject *args);
-static PyObject* program_add_rule(PyObject* self, PyObject *args);
-static PyObject* program_get_predicate_name(PyObject* self, PyObject *args);
+namespace nb = nanobind;
 
-static PyMethodDef Program_methods[] = {
-    {"load_from_file", program_load_from_file, METH_VARARGS, "Load rules from file." },
-    {"get_n_rules", program_get_n_rules, METH_VARARGS, "Return n rules." },
-    {"get_rule", program_get_rule, METH_VARARGS, "Get rules." },
-    {"add_rule", program_add_rule, METH_VARARGS, "Add a rule." },
-    {"get_predicate_name", program_get_predicate_name, METH_VARARGS, "Get name predicate." },
-    {NULL, NULL, 0, NULL}        /* Sentinel */
-};
 
-PyTypeObject glog_ProgramType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-        "glog.Program",             /* tp_name */
-    sizeof(glog_Program),             /* tp_basicsize */
-    0,                         /* tp_itemsize */
-    (destructor) program_dealloc, /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_reserved */
-    0,                         /* tp_repr */
-    0,                         /* tp_as_number */
-    0,                         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash  */
-    0,                         /* tp_call */
-    0,                         /* tp_str */
-    0,                         /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT |
-        Py_TPFLAGS_BASETYPE,   /* tp_flags */
-    "Program",           /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    Program_methods,             /* tp_methods */
-    0,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)program_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    program_new,                 /* tp_new */
-};
-
-static PyObject * program_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    glog_Program *self;
-    self = (glog_Program*)type->tp_alloc(type, 0);
-    self->e = NULL;
-    self->program = NULL;
-    return (PyObject *)self;
+ProgramWrapper::ProgramWrapper(EDBLayerWrapper& edb_wrapper) {
+    edb = edb_wrapper.get_edb();
+    program = std::make_shared<Program>(edb);
 }
 
-static int program_init(glog_Program *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *arg = NULL;
-    if (!PyArg_ParseTuple(args, "O", &arg))
-        return -1;
-    if (arg != NULL) {
-        if (strcmp(arg->ob_type->tp_name, "glog.EDBLayer") != 0)
-            return -1;
-        Py_INCREF(arg);
-        self->e = (glog_EDBLayer*)arg;
-        self->program = std::shared_ptr<Program>(new Program(self->e->e));
+void ProgramWrapper::set_edb_object(nb::object obj) {
+    edb_obj = obj;
+}
+
+void ProgramWrapper::load_from_file(const std::string& path) {
+    if (!Utils::exists(path)) {
+        LOG(ERRORL) << "File " << path << " does not exist";
+        throw std::runtime_error("File " + path + " does not exist");
     }
-    return 0;
+    program->readFromFile(path);
 }
 
-static void program_dealloc(glog_Program* self)
-{
-    if (self->program) {
-        Py_DECREF(self->e);
+size_t ProgramWrapper::get_n_rules() {
+    return program->getNRules();
+}
+
+std::string ProgramWrapper::get_rule(size_t ruleIdx) {
+    auto rule = program->getRule(ruleIdx);
+    return rule.toprettystring(program.get(), edb);
+}
+
+size_t ProgramWrapper::add_rule(const std::string& rule_str) {
+    auto ruleId = program->getNRules();
+    auto out = program->parseRule(rule_str, false);
+    if (!out.empty()) {
+        throw std::runtime_error(out);
     }
-    self->program = NULL;
-    Py_TYPE(self)->tp_free((PyObject*)self);
+    return ruleId;
 }
 
-static PyObject* program_load_from_file(PyObject *self, PyObject *args)
-{
-    const char *path = NULL;
-    if (PyArg_ParseTuple(args, "|s", &path)) {
-        if (!Utils::exists(std::string(path))) {
-            LOG(ERRORL) << "File " << path << " does not exist";
-            return NULL;
-        }
-        ((glog_Program*)self)->program->readFromFile(std::string(path));
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
+std::string ProgramWrapper::get_predicate_name(size_t predId) {
+    return program->getPredicateName(predId);
 }
 
-static PyObject* program_get_n_rules(PyObject* self, PyObject *args)
-{
-    auto nrules = ((glog_Program*)self)->program->getNRules();
-    return PyLong_FromLong(nrules);
+EDBLayer* ProgramWrapper::get_edb() {
+    return edb;
 }
 
-static PyObject* program_get_rule(PyObject* self, PyObject *args)
-{
-    size_t ruleIdx = 0;
-    if (PyArg_ParseTuple(args, "i", &ruleIdx)) {
-        //Get the rule
-        auto rule =  ((glog_Program*)self)->program->getRule(ruleIdx);
-        std::string sRule = rule.toprettystring(((glog_Program*)self)->program.get(),
-                ((glog_Program*)self)->e->e);
-        return PyUnicode_FromStringAndSize(sRule.c_str(), sRule.size());
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
+Program* ProgramWrapper::get_program() {
+    return program.get();
 }
 
-static PyObject* program_add_rule(PyObject* self, PyObject *args)
-{
-    const char *rule = NULL;
-    if (PyArg_ParseTuple(args, "|s", &rule)) {
-        auto ruleId = ((glog_Program*)self)->program->getNRules();
-        auto out = ((glog_Program*)self)->program->parseRule(
-                std::string(rule), false);
-        if (out == "") {
-            return PyLong_FromLong(ruleId);
-        } else {
-            PyErr_SetString(PyExc_TypeError, out.c_str());
-            return (PyObject *) NULL;
-        }
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject* program_get_predicate_name(PyObject* self, PyObject *args) {
-    size_t predId = 0;
-    if (!PyArg_ParseTuple(args, "l", &predId)) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    auto predName = ((glog_Program*)self)->program->getPredicateName(predId);
-    return PyUnicode_FromString(predName.c_str());
+void bind_program(nb::module_ &m) {
+    nb::class_<ProgramWrapper>(m, "Program", "Program")
+        .def(nb::init<EDBLayerWrapper&>(),
+             nb::arg("edb"),
+             nb::keep_alive<1, 2>())
+        .def("load_from_file", &ProgramWrapper::load_from_file,
+             nb::arg("path"),
+             "Load rules from file")
+        .def("get_n_rules", &ProgramWrapper::get_n_rules,
+             "Return n rules")
+        .def("get_rule", &ProgramWrapper::get_rule,
+             nb::arg("ruleIdx"),
+             "Get rules")
+        .def("add_rule", &ProgramWrapper::add_rule,
+             nb::arg("rule"),
+             "Add a rule")
+        .def("get_predicate_name", &ProgramWrapper::get_predicate_name,
+             nb::arg("predId"),
+             "Get name predicate");
 }
