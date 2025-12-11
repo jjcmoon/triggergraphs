@@ -1,5 +1,5 @@
-#ifndef WIZARD_H
-#define WIZARD_H
+#ifndef GLOG_PYTHON_WIZARD_H
+#define GLOG_PYTHON_WIZARD_H
 
 #include <nanobind/nanobind.h>
 #include <string>
@@ -16,4 +16,4 @@ public:
     nb::tuple rewrite_program(ProgramWrapper& program_wrapper, const std::string& query);
 };
 
-#endif // WIZARD_H
+#endif // GLOG_PYTHON_WIZARD_H

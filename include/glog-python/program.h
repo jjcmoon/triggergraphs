@@ -1,5 +1,5 @@
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef GLOG_PYTHON_PROGRAM_H
+#define GLOG_PYTHON_PROGRAM_H
 
 #include <nanobind/nanobind.h>
 #include <memory>
@@ -36,4 +36,4 @@ public:
     Program* get_program();
 };
 
-#endif // PROGRAM_H
+#endif // GLOG_PYTHON_PROGRAM_H
