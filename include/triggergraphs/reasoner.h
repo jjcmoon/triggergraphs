@@ -2,6 +2,7 @@
 #define GLOG_PYTHON_REASONER_H
 
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/unordered_map.h>
 #include <memory>
 #include <string>
 
@@ -36,7 +37,7 @@ public:
                    bool delProofs = true);
 
     void set_python_objects(nb::object edb_obj_, nb::object prog_obj_);
-    std::string create_model(size_t startStep = 0, size_t maxStep = ~0ul);
+    std::unordered_map<std::string, int> create_model(size_t startStep = 0, size_t maxStep = ~0ul);
     TGWrapper* get_TG();  // Implementation in tg.cpp where TGWrapper is fully defined
 
     // For internal use

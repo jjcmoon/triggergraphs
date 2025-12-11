@@ -28,11 +28,11 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/vector.h>
+#include <nanobind/stl/unordered_map.h>
 
 #include <vlog/reasoner.h>
 #include <kognac/logs.h>
 #include <kognac/utils.h>
-#include <trident/utils/json.h>
 
 namespace nb = nanobind;
 
@@ -95,7 +95,7 @@ void ReasonerWrapper::set_python_objects(nb::object edb_obj_, nb::object prog_ob
     program_obj = prog_obj_;
 }
 
-std::string ReasonerWrapper::create_model(size_t startStep, size_t maxStep) {
+std::unordered_map<std::string, int> ReasonerWrapper::create_model(size_t startStep, size_t maxStep) {
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
     sn->prepareRun(startStep, maxStep);
     sn->run();
@@ -107,17 +107,15 @@ std::string ReasonerWrapper::create_model(size_t startStep, size_t maxStep) {
     LOG(INFOL) << "N. edges = " << sn->getNedges();
     LOG(INFOL) << "Triggers = " << sn->getNTriggers();
 
-    std::stringstream ssOut;
-    JSON out;
-    out.put("n_nodes", sn->getNnodes());
-    out.put("n_edges", sn->getNedges());
-    out.put("n_triggers", sn->getNTriggers());
-    out.put("n_derivations", sn->getNDerivedFacts());
-    out.put("steps", sn->getNSteps());
-    out.put("max_mem_mb", Utils::get_max_mem());
-    out.put("runtime_ms", secMat.count() * 1000);
-    JSON::write(ssOut, out);
-    return ssOut.str();
+    std::unordered_map<std::string, int> stats;
+    stats["n_nodes"] = sn->getNnodes();
+    stats["n_edges"] = sn->getNedges();
+    stats["n_triggers"] = sn->getNTriggers();
+    stats["n_derivations"] = sn->getNDerivedFacts();
+    stats["steps"] = sn->getNSteps();
+    stats["max_mem_mb"] = Utils::get_max_mem();
+    stats["runtime_ms"] = secMat.count() * 1000;
+    return stats;
 }
 
 EDBLayer* ReasonerWrapper::get_edb() {
@@ -150,7 +148,7 @@ void bind_reasoner(nb::module_ &m) {
         .def("create_model", &ReasonerWrapper::create_model,
              nb::arg("startStep") = 0,
              nb::arg("maxStep") = ~0ul,
-             "Create model and return statistics as JSON string")
+             "Create model and return statistics")
         .def("get_TG", &ReasonerWrapper::get_TG,
              nb::rv_policy::take_ownership,
              "Get the triggered graph");
