@@ -3,10 +3,9 @@
 Python bindings for the [GLog](github.com/karmaresearch/glog) Datalog engine.
 
 ### Installation
-
-Clone the repo and install with 
+ 
 ```bash
-pip install .
+pip install git+https://github.com/jjcmoon/triggergraphs
 ```
 
 
