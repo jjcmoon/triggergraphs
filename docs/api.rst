@@ -1,8 +1,6 @@
 API Reference
 =============
 
-This page documents the complete API of the TriggerGraphs library.
-
 Module-Level Functions
 ----------------------
 

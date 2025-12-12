@@ -23,7 +23,7 @@ Or install from source:
 Basic Concepts
 --------------
 
-TriggerGraphs is built around several key concepts:
+The triggergraphs library is built around several key concepts:
 
 **Extensional Database (EDB)**
    The set of base facts in your knowledge base. These are the ground truths from which new facts are derived.
@@ -120,14 +120,12 @@ Examples of valid rules:
 
 .. code-block:: prolog
 
-   # Transitivity
+   % Transitivity
    reachable(X,Y) :- edge(X,Y)
    reachable(X,Z) :- edge(X,Y), reachable(Y,Z)
 
-   # Negation (not all chase types support this)
+   % Negation (not all chase types support this)
    bachelor(X) :- person(X), ~married(X)
-
-   # Multiple atoms in head is not supported in standard Datalog
 
 Next Steps
 ----------

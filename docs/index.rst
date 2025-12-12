@@ -1,25 +1,17 @@
 TriggerGraphs Documentation
 ===========================
 
-**TriggerGraphs** is a Python library that provides high-performance bindings to the GLog Datalog reasoning engine. It enables efficient logic programming and reasoning capabilities in Python through a clean, Pythonic API.
+**TriggerGraphs** provides Python bindings to the GLog, a high-performance 
+Datalog engine with support for provenance tracking.
 
-GLog is built on the innovative trigger graphs architecture, which provides:
+Papers
+------
 
-- **High Performance**: Efficient materialization of knowledge bases
-- **Scalability**: Handles large-scale reasoning tasks
-- **Provenance Tracking**: Optional tracking of derivation trees
-- **Flexible Data Sources**: Support for CSV, custom Python sources, and more
+The trigger graphs architecture is described in:
 
-Overview
---------
+- `Materializing knowledge bases via trigger graphs <https://dl.acm.org/doi/abs/10.14778/3447689.3447699>`_
+- `Probabilistic Reasoning at Scale: Trigger Graphs to the Rescue <https://dl.acm.org/doi/abs/10.1145/3588719>`_
 
-TriggerGraphs allows you to:
-
-* Define and manage extensional databases (facts)
-* Express Datalog rules and logic programs
-* Perform efficient forward-chaining reasoning
-* Query derived facts and their provenance
-* Export and visualize trigger graphs
 
 Quick Example
 -------------
@@ -51,13 +43,6 @@ Quick Example
    querier = tg.Querier(tg_graph)
    facts = querier.get_all_facts()
 
-Papers
-------
-
-The trigger graphs architecture is described in:
-
-- `Materializing knowledge bases via trigger graphs <https://dl.acm.org/doi/abs/10.14778/3447689.3447699>`_
-- `Probabilistic Reasoning at Scale: Trigger Graphs to the Rescue <https://dl.acm.org/doi/abs/10.1145/3588719>`_
 
 Contents
 --------

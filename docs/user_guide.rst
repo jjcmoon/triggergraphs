@@ -1,8 +1,6 @@
 User Guide
 ==========
 
-This guide provides detailed information on using TriggerGraphs effectively.
-
 Working with EDBLayer
 ---------------------
 
