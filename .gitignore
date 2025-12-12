@@ -41,6 +41,7 @@ __pycache__
 .idea
 test_env
 .venv
+build
 
 # Pip/setuptools artifacts
 dist/
