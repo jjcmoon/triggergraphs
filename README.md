@@ -9,6 +9,11 @@ pip install git+https://github.com/jjcmoon/triggergraphs
 ```
 
 
+### Usage
+
+Usage examples and the API reference can be found in [the documentation](https://triggergraphs.readthedocs.io/).
+
+
 ### Papers
 
 The inner workings of the GLog engine are described in the following papers.
